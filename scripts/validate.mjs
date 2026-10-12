@@ -211,14 +211,16 @@ function decodeEntities(text) {
 
 // Rendered text only: no comments, script or style bodies, or tags. Inline tags vanish
 // without a space, so a word split by markup ("seam<em>less</em>") is read whole;
-// every other tag becomes a space.
+// every other tag becomes a space. Inline tags are removed until none remain, so
+// removing one can never join the pieces of another into a new tag.
 function visibleText(html) {
-  return decodeEntities(
-    stripComments(html)
-      .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
-      .replace(/<\/?(?:a|em|strong|b|i|span|abbr|small)\b[^>]*>/gi, "")
-      .replace(/<[^>]+>/g, " ")
-  )
+  let text = stripComments(html).replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ");
+  let previous;
+  do {
+    previous = text;
+    text = text.replace(/<\/?(?:a|em|strong|b|i|span|abbr|small)\b[^>]*>/gi, "");
+  } while (text !== previous);
+  return decodeEntities(text.replace(/<[^>]+>/g, " "))
     .replace(/\s+/g, " ")
     .trim();
 }

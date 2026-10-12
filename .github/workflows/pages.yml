@@ -1,18 +1,26 @@
 name: Validate and deploy
 
-# Every push and pull request is checked. Only a push to main, or a manual run on
-# main, deploys, and it deploys exactly the site/ folder that the check just passed.
+# Every push to main and every pull request is checked. Only a push to main, or a
+# manual run on main, deploys, and it deploys exactly the site/ folder that the check
+# just passed. The weekly check is a separate workflow, weekly-check.yml, so GitHub's
+# auto-disable of idle scheduled workflows can never switch this one off.
 on:
   push:
     branches: [main]
   pull_request:
   workflow_dispatch:
-  schedule:
-    # Weekly, so a new advisory or a browser change surfaces even when nobody pushes.
-    - cron: "0 6 * * 1"
 
 permissions:
   contents: read
+
+# Deploying runs (a push or a manual run on main) share the "pages" group, so whole
+# runs, check and deploy together, queue one at a time: an older commit can never
+# deploy after a newer one, a newer pending run replaces an older pending one, and a
+# deploy in progress is never cancelled. Every other run gets a group of its own, so
+# it can never displace a pending deploy.
+concurrency:
+  group: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && 'pages' || format('check-{0}-{1}', github.event_name, github.ref) }}
+  cancel-in-progress: false
 
 jobs:
   check:
@@ -37,12 +45,13 @@ jobs:
       # system libraries.
       - run: npx playwright install --with-deps chromium
       - run: npm run check
+      # Only for the runs the deploy job publishes.
       - name: Configure Pages
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       # site/ only: the README, docs and scripts never become URLs, and Jekyll never runs.
       - name: Upload site/ as the Pages artifact
-        if: github.event_name != 'pull_request'
+        if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: site
@@ -51,12 +60,6 @@ jobs:
     needs: check
     if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
     runs-on: ubuntu-latest
-    # One deploy at a time; a deploy in progress is never cancelled. Set on this job
-    # rather than the workflow, so a queued pull-request check can never displace a
-    # pending deploy from the same group.
-    concurrency:
-      group: pages
-      cancel-in-progress: false
     permissions:
       pages: write
       id-token: write

@@ -16,6 +16,7 @@ import { extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(fileURLToPath(new URL("../site/", import.meta.url)));
+const ogGenerator = resolve(fileURLToPath(new URL("./generate-og.ps1", import.meta.url)));
 
 // Everything GitHub Pages will serve. Anything else in site/ fails, which keeps out
 // scripts, a manifest, a CNAME file, and pages nobody reviewed.
@@ -70,11 +71,13 @@ const faviconSvg = `<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http:
 // The required status line, matched case-insensitively in the home page's visible text.
 const requiredStatusLine = "currently in early access";
 
-// "guarantee" may appear only inside these disclosures, which say what writing
-// does NOT do. Anything else that mentions a guarantee is a promise.
+// "guarantee" and "general availability" may appear only inside these disclosures,
+// which say what writing does NOT do or that no date is set. Anything else that
+// mentions a guarantee or availability is a promise.
 const approvedDisclosures = [
   "It does not create an account or guarantee access.",
   "It does not create an account, place an order, create an agreement, or guarantee access.",
+  "with no general-availability date set",
 ];
 
 // Copy rules, matched on visible text plus meta content, alt, title and aria-label
@@ -86,7 +89,15 @@ const copyRules = [
   },
   {
     name: "promise",
-    pattern: /\b(?:guarantee[sd]?|uptime|SLA|generally available|production ready|now available|launch(?:ed|es|ing)?|24\/7|response times?|support (?:level|hours)|backups?|retention|certified|certifications?|compliant|compliance|SOC ?2|HIPAA|refunds?|money ?back|risk free|free trial|savings?|save (?:time|money)|error free|eliminates?)\b/i,
+    pattern: /\b(?:guarantee[sd]?|uptime|SLA|generally available|production ready|now available|launch(?:ed|es|ing)?|24\/7|response times?|support (?:level|hours)|backups?|retention|certified|certifications?|compliant|compliance|SOC ?2|HIPAA|refunds?|money ?back|risk free|free trial|savings?|save (?:time|money)|error free|eliminates?|general availability|available (?:now|today)|now live|is live|out of early access|released|availability|warrant(?:y|ies|ed)?|promise[sd]?)\b/i,
+  },
+  {
+    // The Tower WMS website's commercial-claim terms, in its own order so the two sites
+    // can be compared term for term (its attorney-review terms are the next rule),
+    // plus its separate "paid pilots" and "unlimited" checks. Some terms overlap the
+    // promise and price rules; a match then reports twice.
+    name: "commercial claim",
+    pattern: /\b(?:money ?back|full refunds?|refund guarantee|free trial|risk free|discount(?:ed|s)?|coupons?|promo(?:tional)? (?:code|price|pricing|rate)|introductory (?:price|pricing|rate)|launch (?:price|pricing)|early access (?:price|prices|pricing|rate)|price lock(?:ed)?|locked (?:price|rate)|cancel any ?time|month to month|uptime|SLA|response times?|24\/7|dedicated database|paid pilots?|unlimited)\b/i,
   },
   {
     name: "attorney-review claim",
@@ -175,14 +186,23 @@ async function check(name, run) {
   results.push({ name, findings });
 }
 
-const read = (name) => readFile(join(root, name), "utf8");
+// Line endings are compared as git stores them (LF, per .gitattributes) and a leading
+// byte-order mark is ignored, so an editor's CRLF save cannot fail a byte-exact check
+// locally that CI, reading the committed file, would pass.
+const normalizeText = (text) => text.replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
+const read = async (name) => normalizeText(await readFile(join(root, name), "utf8"));
 
 function stripComments(html) {
   return html.replace(/<!--[\s\S]*?-->/g, " ");
 }
 
+// Numeric references decode first, and soft hyphens and zero-width characters vanish,
+// so "&#36;49" or "seam&shy;less" is checked as the reader sees it.
 function decodeEntities(text) {
   return text
+    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(parseInt(hex, 16)))
+    .replace(/&#(\d+);/g, (_, decimal) => String.fromCodePoint(Number(decimal)))
+    .replace(/&shy;|[\u00ad\u200b-\u200d\u2060]/g, "")
     .replace(/&nbsp;/g, " ")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -191,11 +211,14 @@ function decodeEntities(text) {
     .replace(/&amp;/g, "&");
 }
 
-// Rendered text only: no comments, script or style bodies, or tags.
+// Rendered text only: no comments, script or style bodies, or tags. Inline tags vanish
+// without a space, so a word split by markup ("seam<em>less</em>") is read whole;
+// every other tag becomes a space.
 function visibleText(html) {
   return decodeEntities(
     stripComments(html)
       .replace(/<(script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, " ")
+      .replace(/<\/?(?:a|em|strong|b|i|span|abbr|small)\b[^>]*>/gi, "")
       .replace(/<[^>]+>/g, " ")
   )
     .replace(/\s+/g, " ")
@@ -260,24 +283,28 @@ await check("No scripts, forms, embeds, inline styles or storage", async () => {
   const findings = [];
   for (const page of pages) {
     const source = stripComments(html[page]);
-    for (const [pattern, label] of [
-      [/<script\b/i, "a <script> element"],
-      [/<noscript\b/i, "a <noscript> element"],
-      [/<form\b/i, "a <form> element"],
-      [/<(?:input|textarea|select|button)\b/i, "a form control"],
-      [/<iframe\b/i, "an <iframe>"],
-      [/<object\b/i, "an <object>"],
-      [/<embed\b/i, "an <embed>"],
-      [/<style\b/i, "a <style> element"],
-      [/<base\b/i, "a <base> element"],
-      [/\sstyle="/i, "an inline style attribute"],
-      [/\son[a-z]+\s*=/i, "an inline event handler"],
-      [/javascript:/i, "a javascript: URL"],
-      [/http-equiv="refresh"/i, "a meta refresh"],
-      [/document\.cookie|localStorage|sessionStorage|indexedDB|navigator\.sendBeacon/i, "a storage or beacon API"],
-      [/google-analytics|googletagmanager|gtag\(|fbq\(|facebook\.net|hotjar|clarity\.ms|segment\.com|mixpanel|posthog|plausible|matomo/i, "a tracking vendor"],
+    // Handlers, javascript: URLs, storage calls and vendor hosts can only act from
+    // inside a tag, so they are matched against tag markup alone, and prose may name
+    // them ("no JavaScript", "nothing in localStorage"). Elements are matched anywhere.
+    const markup = Array.from(source.matchAll(/<[a-z!](?:[^>"']|"[^"]*"|'[^']*')*>/gi), (match) => match[0]).join("\n");
+    for (const [pattern, label, scanned] of [
+      [/<script\b/i, "a <script> element", source],
+      [/<noscript\b/i, "a <noscript> element", source],
+      [/<form\b/i, "a <form> element", source],
+      [/<(?:input|textarea|select|button)\b/i, "a form control", source],
+      [/<iframe\b/i, "an <iframe>", source],
+      [/<object\b/i, "an <object>", source],
+      [/<embed\b/i, "an <embed>", source],
+      [/<style\b/i, "a <style> element", source],
+      [/<base\b/i, "a <base> element", source],
+      [/\sstyle="/i, "an inline style attribute", source],
+      [/\son[a-z]+\s*=/i, "an inline event handler", markup],
+      [/javascript:/i, "a javascript: URL", markup],
+      [/http-equiv="refresh"/i, "a meta refresh", source],
+      [/document\.cookie|localStorage|sessionStorage|indexedDB|navigator\.sendBeacon/i, "a storage or beacon API", markup],
+      [/google-analytics|googletagmanager|gtag\(|fbq\(|facebook\.net|hotjar|clarity\.ms|segment\.com|mixpanel|posthog|plausible|matomo/i, "a tracking vendor", markup],
     ]) {
-      if (pattern.test(source)) findings.push(`${page}: contains ${label}`);
+      if (pattern.test(scanned)) findings.push(`${page}: contains ${label}`);
     }
   }
   const css = await read("styles.css").catch(() => "");
@@ -316,10 +343,11 @@ await check("Resources are local and root-relative", () => {
 await check("Links: allow-listed external URLs and bare approved mailto only", () => {
   const findings = [];
   for (const page of pages) {
-    for (const tag of tags(html[page], "a")) {
+    // <area> links too: an image-map hotspot leaves the site like any <a>.
+    for (const tag of tags(html[page], "(?:a|area)")) {
       const href = attributes(tag).get("href");
       if (href === undefined) {
-        findings.push(`${page}: <a> without href`);
+        if (/^<a\b/i.test(tag)) findings.push(`${page}: <a> without href`);
         continue;
       }
       if (href.startsWith("#")) continue;
@@ -346,7 +374,9 @@ await check("No stray URLs, hosts or addresses in served text", async () => {
     for (const forbidden of forbiddenStrings) {
       if (scanned.toLowerCase().includes(forbidden)) findings.push(`${name}: names ${forbidden}`);
     }
-    for (const [url] of scanned.matchAll(/\bhttps?:\/\/[^\s"'<>)]+/gi)) {
+    for (let [url] of scanned.matchAll(/\bhttps?:\/\/[^\s"'<>)]+/gi)) {
+      // A URL ending a sentence keeps its full stop out of the comparison.
+      url = url.replace(/[.,;:!?]+$/, "");
       const allowed =
         namespaceUris.has(url) ||
         allowedLinks.has(url) ||
@@ -367,7 +397,11 @@ await check("No prices or dollar figures", async () => {
   for (const name of expectedFiles.filter((file) => /\.(?:html|css|txt|xml|svg)$/.test(file))) {
     const source = await read(name).catch(() => "");
     const scanned = name.endsWith(".html") ? stripComments(source) : source;
-    for (const [match] of scanned.matchAll(/[$\u20ac\u00a3]\s?\d[\d,.]*/g)) findings.push(`${name}: money figure ${match}`);
+    for (const [match] of scanned.matchAll(/[$\u20ac\u00a3\uff04]\s?\.?\d[\d,.]*/g)) findings.push(`${name}: money figure ${match}`);
+    // The pages again as a reader sees them, so an entity ("&#36;49") cannot hide a figure.
+    if (name.endsWith(".html")) {
+      for (const [match] of copyText(source).matchAll(/[$\u20ac\u00a3\uff04]\s?\.?\d[\d,.]*/g)) findings.push(`${name}: money figure in copy ${match}`);
+    }
     const spelled = scanned.match(/\b(?:usd|us\$)\s?\d|\d[\d,.]*\s?(?:usd|dollars?)\b/i);
     if (spelled) findings.push(`${name}: amount in words: ${spelled[0]}`);
   }
@@ -536,15 +570,47 @@ await check("og.png is a clean 1200x630 PNG", async () => {
   const height = bytes.readUInt32BE(20);
   if (width !== 1200 || height !== 630) findings.push(`og.png: ${width}x${height}, expected 1200x630`);
   if (bytes.length > 200 * 1024) findings.push(`og.png: ${Math.round(bytes.length / 1024)} KB exceeds the 200 KB budget`);
-  // Text and EXIF chunks are where a tool name, a path or a timestamp would ride along.
+  // Only the chunks that draw the image are allowed. Every other chunk (tEXt, iTXt,
+  // zTXt, eXIf, tIME, iCCP and the rest) is where a tool name, a path, a profile name
+  // or a timestamp would ride along.
+  const renderingChunks = ["IHDR", "PLTE", "IDAT", "IEND", "sRGB", "gAMA", "pHYs", "cHRM"];
   for (let offset = 8; offset + 8 <= bytes.length; ) {
     const length = bytes.readUInt32BE(offset);
     const type = bytes.subarray(offset + 4, offset + 8).toString("latin1");
-    if (["tEXt", "zTXt", "iTXt", "eXIf"].includes(type)) findings.push(`og.png: carries a ${type} metadata chunk`);
+    if (!renderingChunks.includes(type)) findings.push(`og.png: unexpected ${type} chunk`);
     offset += 12 + length;
   }
   const latin = bytes.toString("latin1");
   for (const marker of ["C:\\", "/Users/", "/home/", "xmpmeta"]) if (latin.includes(marker)) findings.push(`og.png: contains "${marker}"`);
+  return findings;
+});
+
+// og.png's pixels cannot be read here, so the text it carries is checked where it is
+// written: the whole of scripts/generate-og.ps1, comments included, gets the copy
+// rules, the money pattern, and the host, address and URL allow-lists.
+await check("Sharing card text: scripts/generate-og.ps1 passes the copy rules", async () => {
+  const findings = [];
+  let text;
+  try {
+    text = normalizeText(await readFile(ogGenerator, "utf8"));
+  } catch {
+    return ["scripts/generate-og.ps1: missing"];
+  }
+  const fail = (rule, match) => findings.push(`generate-og.ps1: ${rule}: "${match}" (its text is drawn on og.png)`);
+  const flat = flatten(text);
+  for (const { name, pattern } of copyRules) {
+    const global = new RegExp(pattern.source, pattern.flags.includes("g") ? pattern.flags : pattern.flags + "g");
+    for (const [match] of flat.matchAll(global)) fail(name, match);
+  }
+  for (const [match] of text.matchAll(/[$\u20ac\u00a3\uff04]\s?\.?\d[\d,.]*/g)) fail("money figure", match);
+  for (const forbidden of forbiddenStrings) if (text.toLowerCase().includes(forbidden)) fail("never named", forbidden);
+  for (const [address] of text.matchAll(/[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}/gi)) {
+    if (!allowedAddresses.has(address.toLowerCase())) fail("email address outside the approved two", address);
+  }
+  for (let [url] of text.matchAll(/\bhttps?:\/\/[^\s"'<>)]+/gi)) {
+    url = url.replace(/[.,;:!?]+$/, "");
+    if (!allowedLinks.has(url) && url !== `${canonicalOrigin}/`) fail("URL outside the allow-list", url);
+  }
   return findings;
 });
 
@@ -562,6 +628,37 @@ await check("Stylesheet: type scale, weights, spacing, radius, rules, palette, l
 
   if (/prefers-color-scheme/i.test(scannable)) fail("prefers-color-scheme found; the site is light only");
   if (/color-scheme\s*:\s*(?!light\s*[;}])/i.test(scannable)) fail("color-scheme other than light");
+
+  // Flat rules only. The declaration scan below reads innermost blocks, so a
+  // declaration beside a nested rule would never be checked; nesting fails instead.
+  // A rule inside an at-rule (@media, @supports) is still flat.
+  const openBlocks = [];
+  let prelude = "";
+  for (const character of scannable) {
+    if (character === "{") {
+      const outer = openBlocks.at(-1);
+      const inner = prelude.trim().replace(/\s+/g, " ");
+      if (outer !== undefined && !outer.startsWith("@")) fail(`nested rule "${inner}" inside "${outer}"; the house system uses flat rules`);
+      openBlocks.push(inner);
+      prelude = "";
+    } else if (character === "}") {
+      openBlocks.pop();
+      prelude = "";
+    } else if (character === ";") {
+      prelude = "";
+    } else {
+      prelude += character;
+    }
+  }
+
+  // The palette is one :root block; a second one would hold tokens no contrast pair
+  // ever checks.
+  const rootMentions = (scannable.match(/:root\b/g) ?? []).length;
+  if (rootMentions !== 1) fail(`:root appears ${rootMentions} times; the palette lives in exactly one :root block`);
+
+  // Properties that carry nothing but a colour: outside :root their value is a token.
+  const colourOnly = /^(?:color|background(?:-color)?|fill|stroke|outline-color|border(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?-color|text-decoration-color|caret-color|accent-color)$/;
+  const tokenValue = /^(?:var\(--[a-z0-9-]+\)|currentcolor|transparent|inherit|none)$/i;
 
   const weightsUsed = new Set();
   for (const [, selector, body] of scannable.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
@@ -581,6 +678,17 @@ await check("Stylesheet: type scale, weights, spacing, radius, rules, palette, l
       if (/^border(?:-(?:top|right|bottom|left|inline|block))?$/.test(property) && !allowedBorders.has(value)) {
         fail(`${property}: ${value} in "${where}" is not a sanctioned rule or boundary`);
       }
+      if (/^border(?:-(?:top|right|bottom|left|inline|block)(?:-(?:start|end))?)?-(?:width|style)$/.test(property)) {
+        fail(`${property} in "${where}" bypasses the sanctioned border shorthands`);
+      }
+      if (/gradient\(/i.test(value)) fail(`${property}: ${value} in "${where}" is a gradient; the house system has none`);
+      if (/^(?:box-shadow|text-shadow|filter|backdrop-filter|mix-blend-mode|font-variation-settings)$/.test(property)) {
+        fail(`${property} in "${where}" is a decorative effect or a hidden weight; the house system has none`);
+      }
+      if (property.startsWith("--") && !/:root/.test(where)) fail(`custom property ${property} in "${where}"; tokens are defined only in :root`);
+      if (!/:root/.test(where) && colourOnly.test(property) && !tokenValue.test(value)) {
+        fail(`${property}: ${value} in "${where}" must be a var(--token)`);
+      }
       if (!/:root/.test(where)) {
         const literal = value
           .replace(/var\(\s*--[a-z0-9-]+\s*\)/gi, " ")
@@ -599,11 +707,12 @@ await check("Stylesheet: type scale, weights, spacing, radius, rules, palette, l
 
   const rootBlock = scannable.match(/:root\s*\{([^}]*)\}/)?.[1] ?? "";
   const palette = new Map();
+  // Every token except the --font-* stacks is a colour, written as opaque 6-digit hex
+  // so the contrast pairs below can measure it.
   for (const [, name, value] of rootBlock.matchAll(/(--[a-z0-9-]+)\s*:\s*([^;]+)/gi)) {
-    if (/^#/.test(value.trim())) {
-      if (!/^#[0-9a-f]{6}$/i.test(value.trim())) fail(`palette token ${name} is not opaque 6-digit hex`);
-      else palette.set(name, value.trim().toLowerCase());
-    }
+    if (name.startsWith("--font-")) continue;
+    if (!/^#[0-9a-f]{6}$/i.test(value.trim())) fail(`palette token ${name} is not opaque 6-digit hex`);
+    else palette.set(name, value.trim().toLowerCase());
   }
   const luminance = (hex) => {
     const [r, g, b] = [1, 3, 5].map((index) => parseInt(hex.slice(index, index + 2), 16) / 255);

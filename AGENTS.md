@@ -7,6 +7,7 @@ These rules apply to every change in this repository, whoever makes it. `npm run
 - The public website of Tower Software Systems: one content page (`site/index.html`) and an error page (`site/404.html`). Its job is to tell someone who meets the name who the company is, that it is real, what it makes, where to write, and where the product lives.
 - `site/` is the only folder GitHub Pages serves. Nothing outside it is ever deployed.
 - Nothing is pushed, deployed, or changed on GitHub (repository, Pages or organization settings), and no DNS record is changed, without the owner's approval.
+- Changes reach `main` only by pull request with a passing `check` job; the ruleset on `main` enforces it. Merging deploys.
 
 ## This repository is public
 

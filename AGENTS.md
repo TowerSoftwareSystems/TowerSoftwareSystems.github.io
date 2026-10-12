@@ -42,7 +42,7 @@ Nothing internal goes anywhere in it: not in pages, README, docs, code comments,
 
 - No JavaScript, forms, accounts, cookies, analytics, tracking, remote fonts, scripts or stylesheets, CDN assets, iframes or embeds. The footer says so, and `scripts/validate.mjs` keeps it true. Every page must work fully with JS disabled.
 - Every asset URL is root-relative, so the 404 page works at any depth.
-- No manifest, no `CNAME` file and no dark mode. The custom domain is a later, separate change; the README describes it.
+- No manifest, no `CNAME` file and no dark mode. The custom domain, towersoftwaresystems.com, is set in the repository's Pages settings, not by a file; the README describes it.
 - No stock photography, gradients or decorative effects. Never reuse towerwms.com's `og.png` or its product captures.
 
 ## Design system

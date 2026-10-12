@@ -6,10 +6,11 @@
 // not in the check: fix the page. Change a check only when the rule it enforces has
 // changed, and say so in the commit.
 
-// The origin that serves the site. Every canonical, sharing, sitemap and robots URL
-// is built from this one constant. If a custom domain replaces it, change it here and
-// then change the URLs in site/ until this script passes again.
-const canonicalOrigin = "https://towersoftwaresystems.github.io";
+// The origin that serves the site: the custom domain set in the repository's Pages
+// settings. Every canonical, sharing, sitemap and robots URL is built from this one
+// constant. If the domain changes, change it here and then change the URLs in site/
+// until this script passes again.
+const canonicalOrigin = "https://towersoftwaresystems.com";
 
 import { readFile, readdir } from "node:fs/promises";
 import { extname, join, resolve } from "node:path";

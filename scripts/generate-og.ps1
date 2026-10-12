@@ -196,7 +196,7 @@ foreach ($row in $rows) {
 # Bottom row: the one hairline, the company address, the site's own host.
 $graphics.DrawLine($hairlinePen, 64, 548, 1136, 548)
 $graphics.DrawString("hello@towersoftwaresystems.com", $metaFont, $mutedBrush, 64, 570, $tight)
-$siteHost = "towersoftwaresystems.github.io"
+$siteHost = "towersoftwaresystems.com"
 $siteHostWidth = Measure-Text $siteHost $metaFont
 $graphics.DrawString($siteHost, $metaFont, $mutedBrush, (1136 - $siteHostWidth), 570, $tight)
 

@@ -13,6 +13,7 @@ Source for https://towersoftwaresystems.github.io/, the website of Tower Softwar
 | `scripts/generate-og.ps1` | Draws `site/og.png`, the 1200x630 sharing card (Windows, System.Drawing). |
 | `docs/claim-inventory.md` | Every factual statement on the site and its public source. |
 | `AGENTS.md` | Rules for changing this repository. |
+| `SECURITY.md` | How to report a security issue privately. |
 | `.github/workflows/pages.yml` | Validates every push to `main` and every pull request; deploys `site/` from `main`. |
 | `.github/workflows/weekly-check.yml` | Runs the same checks every week and on demand; never deploys. |
 
@@ -49,6 +50,16 @@ Deploying runs queue one at a time as whole runs, check and deploy together, so 
 `.github/workflows/weekly-check.yml` ("Weekly check") runs the same checks every Monday and on demand, so a new advisory or a browser change surfaces even when nobody pushes. It never uploads or deploys. GitHub stops scheduled workflows in a public repository after 60 days without repository activity; `gh workflow enable weekly-check.yml` resumes it. Because the schedule lives in its own workflow, that never affects deploys.
 
 Because only `site/` is uploaded, the README, docs and scripts never become URLs, and Jekyll never runs. Every action is pinned to a full commit SHA, and Dependabot proposes npm and action updates weekly.
+
+## Repository security
+
+- **`main` takes changes only by pull request.** A ruleset blocks direct pushes, force pushes and deletion, and a pull request merges only after its `check` job passes and CodeQL has analyzed it without a new high-severity alert. Repository admins can bypass it when merging a pull request, never by pushing directly. Merging deploys, as above.
+- **CodeQL** (code scanning, default setup) analyzes the workflows and the JavaScript in `scripts/` on every pull request, every push to `main`, and weekly.
+- **Secret scanning with push protection** rejects a push that contains a recognized credential.
+- **Dependabot** raises alerts for vulnerable dependencies and opens a fix pull request when one is available, in addition to the weekly version updates in `.github/dependabot.yml`.
+- **Private vulnerability reporting** is on; `SECURITY.md` points reporters to it.
+
+These are repository settings, not files, so changing one needs approval like any other GitHub change.
 
 ## Going live (one time)
 

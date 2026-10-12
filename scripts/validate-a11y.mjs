@@ -13,7 +13,7 @@ import { startServer } from "./serve.mjs";
 // The home page and a path that does not exist, which must come back as the 404
 // page with status 404, the way GitHub Pages serves it.
 const pages = [
-  { path: "/", status: 200, title: "Tower Software Systems | The company behind Tower WMS" },
+  { path: "/", status: 200, title: "Tower Software Systems | Focused software for specific operations" },
   { path: "/this-page-does-not-exist/", status: 404, title: "Page not found | Tower Software Systems" },
 ];
 

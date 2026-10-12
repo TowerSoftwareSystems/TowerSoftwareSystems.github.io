@@ -4,7 +4,7 @@ param(
 
 # Draws site/og.png, the 1200x630 sharing card, in the Tower WMS house design
 # system: the stacked-plate lockup drawn as outlines, the paper/ink/marking-orange
-# palette, and a "Company facts" record in the house object style. It is the company
+# palette, and a "Products" record in the house object style. It is the company
 # card, so it carries no interface capture, no plate, no figures and no prices.
 #
 # Windows only (System.Drawing). Run from the repository root:
@@ -150,13 +150,12 @@ foreach ($glyph in $glyphs) {
   $graphics.FillPath($inkBrush, $glyph)
 }
 
-# Left column: label, headline, lede.
-[void](Draw-Tracked "THE COMPANY BEHIND TOWER WMS" $labelFont $mutedBrush 64 128)
+# Left column: headline and lede, the headline level with the top of the record.
 $graphics.DrawString("Tower Software Systems", $headlineFont, $inkBrush, 62, 194, $tight)
 $ledeRect = New-Object System.Drawing.RectangleF(64, 262, 620, 80)
-$graphics.DrawString("Warehouse and logistics software for industrial-warehousing brokers.", $ledeFont, $bodyBrush, $ledeRect, $tight)
+$graphics.DrawString("Focused software for specific operations.", $ledeFont, $bodyBrush, $ledeRect, $tight)
 
-# Right column: the "Company facts" record, in the house object style: paper ground,
+# Right column: the "Products" record, in the house object style: paper ground,
 # 1px ink boundary, 4px marking-orange top rule, 24px padding, mono rows with the
 # term muted on the left and the value in ink on the right.
 $recordLeft = 760
@@ -164,10 +163,10 @@ $recordRight = 1136
 $recordTop = 194
 $padding = 24
 $rows = @(
-  @("Legal entity", "Moral Support Studios LLC", $false),
   @("Product", "Tower WMS", $false),
+  @("For", "Industrial-warehousing brokers", $false),
   @("Status", "Currently in early access", $true),
-  @("Product site", "www.towerwms.com", $false)
+  @("Site", "www.towerwms.com", $false)
 )
 $rowHeight = 21
 $rowGap = 8
@@ -179,7 +178,7 @@ $graphics.DrawRectangle($inkPen, $recordLeft, $recordTop, ($recordRight - $recor
 $graphics.FillRectangle($orangeBrush, $recordLeft, $recordTop, ($recordRight - $recordLeft), 4)
 
 $y = $recordTop + 4 + $padding
-[void](Draw-Tracked "COMPANY FACTS" $labelFont $inkBrush ($recordLeft + $padding) $y)
+[void](Draw-Tracked "PRODUCTS" $labelFont $inkBrush ($recordLeft + $padding) $y)
 $y += $headHeight + $headGap
 foreach ($row in $rows) {
   $term = $row[0]

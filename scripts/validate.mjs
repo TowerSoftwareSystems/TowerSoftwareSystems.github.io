@@ -149,21 +149,21 @@ const WCAG_TEXT = 4.5;
 const WCAG_OBJECT = 3;
 const CONTRAST_MARGIN = 0.3;
 const contrastFloors = [
-  { fg: "--ink", bg: "--paper", threshold: WCAG_TEXT, where: "headings, record values, .not-block text" },
-  { fg: "--ink", bg: "--panel", threshold: WCAG_TEXT, where: "headings inside .product" },
+  { fg: "--ink", bg: "--paper", threshold: WCAG_TEXT, where: "headings and record values" },
+  { fg: "--ink", bg: "--panel", threshold: WCAG_TEXT, where: "the section heading inside .product" },
   { fg: "--ink-body", bg: "--paper", threshold: WCAG_TEXT, where: "body copy" },
-  { fg: "--ink-body", bg: "--panel", threshold: WCAG_TEXT, where: "body copy inside .product" },
+  { fg: "--ink-body", bg: "--panel", threshold: WCAG_TEXT, where: "body copy on the panel" },
   { fg: "--ink-muted", bg: "--paper", threshold: WCAG_TEXT, where: ".lede, .meta, .label, record terms" },
-  { fg: "--ink-muted", bg: "--panel", threshold: WCAG_TEXT, where: ".lede and .label inside .product" },
+  { fg: "--ink-muted", bg: "--panel", threshold: WCAG_TEXT, where: "the section label inside .product" },
   { fg: "--blue", bg: "--paper", threshold: WCAG_TEXT, where: "links and nav on the page ground" },
-  { fg: "--blue", bg: "--panel", threshold: WCAG_TEXT, where: "links inside .product" },
-  { fg: "--orange-text", bg: "--paper", threshold: WCAG_TEXT, where: ".record-status" },
+  { fg: "--blue", bg: "--panel", threshold: WCAG_TEXT, where: "links on the panel" },
+  { fg: "--orange-text", bg: "--paper", threshold: WCAG_TEXT, where: ".record-status, .entry-status" },
   { fg: "--paper", bg: "--ink", threshold: WCAG_TEXT, where: "footer links, .skip-link, .button:hover" },
   { fg: "--hairline", bg: "--ink", threshold: WCAG_TEXT, where: "footer legal lines" },
   { fg: "--paper", bg: "--blue", threshold: WCAG_TEXT, where: ".button label" },
-  { fg: "--orange", bg: "--paper", threshold: WCAG_OBJECT, where: ".artifact and .status-block 4px marking rule" },
-  { fg: "--orange", bg: "--panel", threshold: WCAG_OBJECT, where: ".status-block rule against the .product panel" },
-  { fg: "--ink", bg: "--panel", threshold: WCAG_OBJECT, where: ".not-block 1px boundary on the panel" },
+  { fg: "--orange", bg: "--paper", threshold: WCAG_OBJECT, where: ".artifact 4px marking rule" },
+  { fg: "--orange", bg: "--panel", threshold: WCAG_OBJECT, where: ".product-entry rule against the .product panel" },
+  { fg: "--ink", bg: "--panel", threshold: WCAG_OBJECT, where: ".product-entry 1px boundary on the panel" },
   { fg: "--blue", bg: "--paper", threshold: WCAG_OBJECT, where: ".button boundary" },
 ];
 // The pair that justifies the reversed footer's paper links. If it ever passes, the

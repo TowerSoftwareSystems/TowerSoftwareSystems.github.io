@@ -4,7 +4,8 @@ These rules apply to every change in this repository, whoever makes it. `npm run
 
 ## What this is
 
-- The public website of Tower Software Systems: one content page (`site/index.html`) and an error page (`site/404.html`). Its job is to tell someone who meets the name who the company is, that it is real, what it makes, where to write, and where the product lives.
+- The public website of Tower Software Systems: one content page (`site/index.html`) and an error page (`site/404.html`). Its job is to tell someone who meets the name who the company is, that it is real, what it makes, where to write, and where each product lives.
+- It is the umbrella for the Tower products. The page leads with the company; each product gets a row in the hero's Products card and an entry in the Products section, both linking to that product's own site.
 - `site/` is the only folder GitHub Pages serves. Nothing outside it is ever deployed.
 - Nothing is pushed, deployed, or changed on GitHub (repository, Pages or organization settings), and no DNS record is changed, without the owner's approval.
 - Changes reach `main` only by pull request with a passing `check` job; the ruleset on `main` enforces it. Merging deploys.
@@ -15,7 +16,7 @@ Nothing internal goes anywhere in it: not in pages, README, docs, code comments,
 
 ## Product claims
 
-- The Tower WMS website's own guardrails are the authority for anything said about Tower WMS. This site says less than www.towerwms.com, never more and never something different. If a product statement here disagrees with www.towerwms.com, this site is wrong.
+- Each product's own site and its guardrails are the authority for anything said about that product; for Tower WMS that is www.towerwms.com. This site says less than the product's site, never more and never something different. If a product statement here disagrees with it, this site is wrong.
 - Describe Tower WMS exactly as "currently in early access". Never state or imply general availability or production-readiness, a launch or general-availability date, a customer count, current customer use, or any customer name or hint. No testimonials, logos, endorsements or case studies.
 - Promise nothing: no access, timing, uptime, availability, backups, retention, support levels, response times, certifications, security guarantees, compliance, refunds or savings.
 - No prices: no price, dollar figure, tier name, implementation fee or fee language anywhere, including `og.png`. Link https://www.towerwms.com/pricing/ instead.
@@ -29,6 +30,9 @@ Nothing internal goes anywhere in it: not in pages, README, docs, code comments,
 ## Company facts
 
 - Allowed: Tower Software Systems is a trade name of Moral Support Studios LLC, a Missouri limited liability company. Tower WMS is a product of Tower Software Systems.
+- Lead with the company, not its legal structure: the legal-entity line appears in the footer only, never in the hero, the title, the descriptions or the sharing card.
+- The company line is "Focused software for specific operations." It describes the company, so it stays true of every product; never narrow it to one product's market.
+- Name only products that are public. Never state or hint at unannounced or upcoming products.
 - Not allowed: team size or headcount, founder or personal names, founding year, registration date or number, address or city, funding, partners, years of experience.
 - Never claim or hint at attorney review of anything.
 

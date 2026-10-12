@@ -284,10 +284,6 @@ li {
   align-items: center;
 }
 
-.hero-copy .label {
-  margin-bottom: 24px;
-}
-
 .hero-copy h1 {
   margin-bottom: 24px;
 }
@@ -295,10 +291,6 @@ li {
 .hero-copy .lede {
   max-width: 68ch;
   margin-bottom: 24px;
-}
-
-.hero-legal {
-  margin-bottom: 32px;
 }
 
 .button {
@@ -374,61 +366,31 @@ li {
   font-weight: 700;
 }
 
-/* What we make ----------------------------------------------------------- */
+/* Products -------------------------------------------------------------- */
 
 .product {
   background: var(--panel);
   border-block: 1px solid var(--hairline);
 }
 
-/* Here the lede introduces two paragraphs rather than a list or a figure, so it sits
-   closer to them than the house 48px. The lede is itself a .measure, so the rule below
-   also gives the first paragraph a 16px margin-top, which collapses into these 24px. */
-.section.product > .shell > .lede {
-  margin-bottom: 24px;
-}
-
-.product .measure + .measure {
-  margin-top: 16px;
-}
-
-.not-block {
-  margin-top: 48px;
+/* One entry per product, in the house object style. A second product is a second
+   .product-entry, spaced from the first by the same margin-top. */
+.product-entry {
+  margin-top: 32px;
   padding: 32px;
-  border: 1px solid var(--ink);
-  border-radius: 2px;
 }
 
-.not-block h3 {
-  margin-bottom: 16px;
+.product-entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 24px;
 }
 
-.not-block p {
-  max-width: 68ch;
-  color: var(--ink);
-}
-
-.status-block {
-  margin-top: 32px;
-  padding: 24px;
-  background: var(--paper);
-  border-left: 4px solid var(--orange);
-}
-
-.status-block .label {
-  margin-bottom: 16px;
-}
-
-.status-block h3 {
-  margin-bottom: 16px;
-}
-
-.status-block p {
-  max-width: 68ch;
-}
-
-.product-route {
-  margin-top: 32px;
+/* The entry's status, in the record's one status accent: --orange-text at text size. */
+.product-entry .entry-status {
+  color: var(--orange-text);
 }
 
 /* Contact ---------------------------------------------------------------- */
@@ -490,7 +452,7 @@ li {
     gap: 48px;
   }
 
-  .artifact {
+  .record {
     max-width: 360px;
   }
 }
@@ -512,7 +474,7 @@ li {
     margin-top: 48px;
   }
 
-  .not-block {
+  .product-entry {
     padding: 24px;
   }
 

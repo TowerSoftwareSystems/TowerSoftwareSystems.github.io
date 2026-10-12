@@ -1,6 +1,6 @@
 # TowerSoftwareSystems.github.io
 
-Source for https://towersoftwaresystems.github.io/, the website of Tower Software Systems, the company behind Tower WMS (https://www.towerwms.com/). Static HTML and one stylesheet: no scripts, forms, cookies, analytics or tracking. `node scripts/validate.mjs` checks the pages. `docs/claim-inventory.md` lists every factual statement on the site and its public source.
+Source for https://towersoftwaresystems.github.io/, the website of Tower Software Systems and the umbrella for its products, currently Tower WMS (https://www.towerwms.com/). Static HTML and one stylesheet: no scripts, forms, cookies, analytics or tracking. `node scripts/validate.mjs` checks the pages. `docs/claim-inventory.md` lists every factual statement on the site and its public source.
 
 ## Repository layout
 

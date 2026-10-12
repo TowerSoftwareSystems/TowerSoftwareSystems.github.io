@@ -1,0 +1,11 @@
+/node_modules
+/test-results
+/playwright-report
+/blob-report
+.env
+.env.*
+.DS_Store
+npm-debug.log*
+
+# Local Claude Code tooling config. Not part of the site.
+.claude/

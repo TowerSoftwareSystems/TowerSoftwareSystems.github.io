@@ -1,0 +1,564 @@
+/* Tower Software Systems — one stylesheet, no remote requests, light only.
+
+   This is the design system of www.towerwms.com, trimmed to what this site uses, so
+   the company site reads as the same house. The value lists below are the whole
+   system. Anything not in them is a defect, and scripts/validate.mjs fails on one:
+
+   font-size   10 12 13 14 16 19 24 30, plus clamp(32px, 5vw, 42px) for the display
+   font-weight 400 and 700 (600 is allowed as a softer bold, never as a third level)
+   spacing     0 8 16 24 32 48 64 96, and 56 for the mobile section padding
+   radius      2px maximum
+   rule        1px solid var(--hairline) is the only hairline. The 1px --ink boundary
+               of an object and the 4px marking-orange rule are objects, not dividers.
+   colour      only the custom properties in :root; contrast is checked by the validator
+   shell       1120px, prose measure 68ch
+*/
+
+:root {
+  --font-ui: system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-data: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+
+  --paper: #f5f3ed;      /* page ground */
+  --ink: #142536;        /* headings, focus rings, the reversed footer */
+  --ink-body: #2b3a47;   /* body */
+  --ink-muted: #4d5c68;  /* metadata, ledes, labels */
+  --blue: #15568c;       /* every interactive element on a light ground */
+  --orange-text: #9a4a00;/* marking orange at text sizes */
+  --orange: #c2621f;     /* marking orange, objects and rules only, never text */
+  --hairline: #dcd5c6;   /* the one 1px rule */
+  --panel: #efebe0;      /* panel fill */
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink-body);
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+p,
+figure,
+dl,
+dd {
+  margin: 0;
+}
+
+a {
+  color: var(--blue);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+a:hover {
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+/* The skip link moves focus to <main tabindex="-1">, and Chromium matches
+   :focus-visible on that programmatic focus, which would ring the whole page. */
+#main-content:focus,
+#main-content:focus-visible {
+  outline: none;
+}
+
+.sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 8;
+  padding: 8px 16px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 700;
+  text-decoration: none;
+  transform: translateY(-200%);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.shell {
+  width: min(1120px, 100% - 48px);
+  margin-inline: auto;
+}
+
+.measure {
+  max-width: 68ch;
+}
+
+/* Type scale ------------------------------------------------------------- */
+
+h1 {
+  color: var(--ink);
+  font-size: clamp(32px, 5vw, 42px);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  text-wrap: balance;
+}
+
+h2 {
+  color: var(--ink);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+h3 {
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.lede {
+  color: var(--ink-muted);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.meta {
+  color: var(--ink-muted);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.45;
+}
+
+/* Hierarchy comes from case, tracking and colour here, never from a weight
+   between 400 and 700. */
+.label {
+  color: var(--ink-muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+/* Header and footer ------------------------------------------------------ */
+
+.site-header {
+  border-bottom: 1px solid var(--hairline);
+}
+
+.header-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+  padding: 24px 0;
+}
+
+.lockup-link {
+  display: inline-flex;
+  color: var(--ink);
+}
+
+.lockup-link:hover {
+  color: var(--blue);
+}
+
+.lockup {
+  display: block;
+  width: 160px;
+  height: auto;
+  fill: currentcolor;
+}
+
+.site-nav,
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 32px;
+  font-size: 16px;
+}
+
+.site-nav a,
+.footer-nav a {
+  padding: 8px 0;
+}
+
+/* The page's one reversed block. --blue is 2.1:1 on this navy, so no link here may
+   fall back to it: every footer link, including the inline hosting-note link, is
+   --paper with its underline, the legal lines are --hairline, and the focus ring
+   flips to --paper. */
+.site-footer {
+  margin-top: 96px;
+  background: var(--ink);
+  color: var(--hairline);
+}
+
+.site-footer a {
+  color: var(--paper);
+}
+
+.site-footer a:hover {
+  color: var(--hairline);
+}
+
+.site-footer .meta {
+  color: var(--hairline);
+}
+
+.site-footer :focus-visible {
+  outline-color: var(--paper);
+}
+
+/* .footer-inner is a grid, which would stretch the wordmark's hit area and focus ring
+   across the whole shell. */
+.site-footer .lockup-link {
+  justify-self: start;
+}
+
+.footer-inner {
+  display: grid;
+  gap: 24px;
+  padding: 48px 0;
+}
+
+/* Sections --------------------------------------------------------------- */
+
+.section {
+  padding: 96px 0;
+}
+
+.section > .shell > .label {
+  margin-bottom: 16px;
+}
+
+.section > .shell > h1,
+.section > .shell > h2 {
+  margin-bottom: 16px;
+}
+
+.section > .shell > .lede {
+  margin-bottom: 48px;
+}
+
+/* Hero ------------------------------------------------------------------- */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 64px;
+  align-items: center;
+}
+
+.hero-copy .label {
+  margin-bottom: 24px;
+}
+
+.hero-copy h1 {
+  margin-bottom: 24px;
+}
+
+.hero-copy .lede {
+  max-width: 68ch;
+  margin-bottom: 24px;
+}
+
+.hero-legal {
+  margin-bottom: 32px;
+}
+
+.button {
+  display: inline-block;
+  padding: 16px 24px;
+  background: var(--blue);
+  border: 1px solid var(--blue);
+  border-radius: 2px;
+  color: var(--paper);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+/* The house record object: paper ground, 1px ink boundary, 4px marking-orange rule. */
+.artifact {
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-top: 4px solid var(--orange);
+}
+
+.artifact-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+}
+
+.artifact-head .label {
+  color: var(--ink);
+}
+
+.artifact-body {
+  display: grid;
+  gap: 8px;
+  font-family: var(--font-data);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.6;
+}
+
+.artifact-body > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.artifact-body dt {
+  color: var(--ink-muted);
+}
+
+.artifact-body dd {
+  color: var(--ink);
+  text-align: right;
+}
+
+/* The record's one status accent: --orange-text, never --orange, at text size.
+   Scoped under .artifact-body so it outranks `.artifact-body dd` above. */
+.artifact-body .record-status {
+  color: var(--orange-text);
+  font-weight: 700;
+}
+
+.record-note {
+  margin-top: 0;
+}
+
+/* What we make ----------------------------------------------------------- */
+
+.product {
+  background: var(--panel);
+  border-block: 1px solid var(--hairline);
+}
+
+/* Here the lede introduces two paragraphs rather than a list or a figure, so it sits
+   closer to them than the house 48px. */
+.section.product > .shell > .lede {
+  margin-bottom: 24px;
+}
+
+.product .measure + .measure {
+  margin-top: 16px;
+}
+
+.not-block {
+  margin-top: 48px;
+  padding: 32px;
+  border: 1px solid var(--ink);
+  border-radius: 2px;
+}
+
+.not-block h3 {
+  margin-bottom: 16px;
+}
+
+.not-block p {
+  max-width: 68ch;
+  color: var(--ink);
+}
+
+.status-block {
+  margin-top: 32px;
+  padding: 24px;
+  background: var(--paper);
+  border-left: 4px solid var(--orange);
+}
+
+.status-block .label {
+  margin-bottom: 16px;
+}
+
+.status-block h3 {
+  margin-bottom: 8px;
+}
+
+.status-block p {
+  max-width: 68ch;
+}
+
+.product-route {
+  margin-top: 32px;
+}
+
+/* Contact ---------------------------------------------------------------- */
+
+.routing {
+  display: grid;
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.routing dt {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.routing dd {
+  margin: 0;
+}
+
+.routing dd.meta {
+  margin-top: 8px;
+}
+
+/* 404 -------------------------------------------------------------------- */
+
+.prose {
+  max-width: 68ch;
+}
+
+.prose h2 {
+  margin-top: 48px;
+  margin-bottom: 16px;
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+.prose p + p,
+.prose h2 + p {
+  margin-top: 16px;
+}
+
+.prose ul {
+  margin: 0;
+  padding-left: 24px;
+}
+
+.prose li + li {
+  margin-top: 8px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 48px;
+  font-size: 16px;
+}
+
+/* Responsive ------------------------------------------------------------- */
+
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 48px;
+  }
+
+  .artifact {
+    max-width: 360px;
+  }
+}
+
+@media (max-width: 600px) {
+  .shell {
+    width: min(1120px, 100% - 32px);
+  }
+
+  .section {
+    padding: 56px 0;
+  }
+
+  .site-nav {
+    gap: 8px 16px;
+  }
+
+  .site-footer {
+    margin-top: 48px;
+  }
+
+  .not-block {
+    padding: 24px;
+  }
+
+  /* Record rows stack, so the 30-character address never clips on a phone. */
+  .record .artifact-body > div {
+    display: grid;
+    gap: 0;
+  }
+
+  .record dd {
+    text-align: left;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+@media print {
+  .skip-link,
+  .site-nav {
+    display: none;
+  }
+
+  .section {
+    padding: 24px 0;
+    break-inside: avoid;
+  }
+
+  .product {
+    background: var(--paper);
+  }
+
+  /* Printers drop background fills, which would leave the reversed footer as paper
+     text on paper. Un-reverse it rather than rely on the ink arriving. */
+  .site-footer {
+    background: var(--paper);
+    color: var(--ink-muted);
+    border-top: 1px solid var(--hairline);
+  }
+
+  .site-footer .meta {
+    color: var(--ink-muted);
+  }
+
+  .site-footer a {
+    color: var(--ink);
+  }
+}

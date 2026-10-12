@@ -1,0 +1,21 @@
+{
+  "extends": ["html-validate:recommended", "html-validate:document"],
+  "rules": {
+    "attr-quotes": ["error", { "style": "double" }],
+    "close-order": "error",
+    "heading-level": "error",
+    "no-inline-style": "error",
+    "no-trailing-whitespace": "error",
+    "prefer-native-element": "error",
+    "require-sri": "off",
+    "tel-non-breaking": "off",
+    "text-content": "off",
+    "wcag/h30": "error",
+    "wcag/h32": "error",
+    "wcag/h36": "error",
+    "wcag/h37": "error",
+    "wcag/h63": "error",
+    "wcag/h67": "error",
+    "wcag/h71": "error"
+  }
+}

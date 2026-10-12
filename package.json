@@ -1,0 +1,22 @@
+{
+  "name": "towersoftwaresystems-github-io",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Source for the Tower Software Systems website, served by GitHub Pages from site/.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.6.0"
+  },
+  "scripts": {
+    "serve": "node scripts/serve.mjs",
+    "validate:html": "html-validate site/index.html site/404.html",
+    "validate:site": "node scripts/validate.mjs",
+    "validate:a11y": "node scripts/validate-a11y.mjs",
+    "check": "npm run validate:html && npm run validate:site && npm run validate:a11y"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.13.0",
+    "html-validate": "10.0.0",
+    "playwright": "1.64.0"
+  }
+}

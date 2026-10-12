@@ -1,6 +1,6 @@
 # Claim inventory
 
-Every factual statement on https://towersoftwaresystems.github.io/ and the public source that supports it. A statement that is added or changed on the site gets its row here in the same change. "Established fact" marks a statement about the company or this site that has no page to cite.
+Every factual statement on https://towersoftwaresystems.com/ and the public source that supports it. A statement that is added or changed on the site gets its row here in the same change. "Established fact" marks a statement about the company or this site that has no page to cite.
 
 | # | Claim on the site (where) | Public citation |
 |---|---|---|
@@ -25,6 +25,6 @@ Every factual statement on https://towersoftwaresystems.github.io/ and the publi
 | 19 | GitHub: TowerSoftwareSystems (Company facts; footer) | github.com/TowerSoftwareSystems |
 | 20 | "© 2026 Tower Software Systems" (footer) | Tower WMS website (www.towerwms.com) footer: "© 2026 Tower Software Systems" |
 | 21 | "This site has no accounts, sets no cookies, and runs no analytics or tracking scripts." (footer) | Established fact: this site's pages contain no forms, scripts or third-party requests, checked by `scripts/validate.mjs` in this repository; GitHub Pages responses set no cookies (checked 2026-10-11) |
-| 22 | "It is hosted on GitHub Pages" (footer) | Established fact: served by GitHub Pages at towersoftwaresystems.github.io |
+| 22 | "It is hosted on GitHub Pages" (footer) | Established fact: served by GitHub Pages at towersoftwaresystems.com, the custom domain set in the repository's Pages settings |
 | 23 | "GitHub logs and stores each visitor’s IP address for security purposes" (footer) | GitHub Docs, "What is GitHub Pages?", Data collection section (checked 2026-10-11) |
 | 24 | "This site is a single page about Tower Software Systems and its product, Tower WMS…" (404) | Established fact: this site has one content page and an error page |

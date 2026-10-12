@@ -1,6 +1,6 @@
 # TowerSoftwareSystems.github.io
 
-Source for https://towersoftwaresystems.github.io/, the website of Tower Software Systems, the company behind Tower WMS (https://www.towerwms.com/). Static HTML and one stylesheet: no scripts, forms, cookies, analytics or tracking. `node scripts/validate.mjs` checks the pages. `docs/claim-inventory.md` lists every factual statement on the site and its public source.
+Source for https://towersoftwaresystems.com/, the website of Tower Software Systems, the company behind Tower WMS (https://www.towerwms.com/). Static HTML and one stylesheet: no scripts, forms, cookies, analytics or tracking. `node scripts/validate.mjs` checks the pages. `docs/claim-inventory.md` lists every factual statement on the site and its public source.
 
 ## Repository layout
 
@@ -63,7 +63,7 @@ These are repository settings, not files, so changing one needs approval like an
 
 ## Going live (one time)
 
-None of this has been done yet. Each step changes GitHub, so take them only once the site is approved.
+These steps have been done and are kept as the record of how the site was set up. Each one changes GitHub, so repeat one only with approval.
 
 1. Create the public repository (GitHub Pages on the Free plan needs a public repository), with no initial files:
 
@@ -104,12 +104,12 @@ None of this has been done yet. Each step changes GitHub, so take them only once
 
    The first should show `custom_branch_policies: true`, and the second should list only `main`. If not, set Settings → Environments → github-pages → Deployment branches and tags → Selected branches and tags → `main`. That is a repository-settings change, so it needs approval like the steps above.
 
-## Custom domain later
+## Custom domain
 
-The site is served from `towersoftwaresystems.github.io` for now. To move it to `towersoftwaresystems.com` later, follow GitHub's guide "Managing a custom domain for your GitHub Pages site", in this order:
+The site is served from `towersoftwaresystems.com`. GitHub Pages redirects `www.towersoftwaresystems.com` and `towersoftwaresystems.github.io` to it. It was set up with these steps, in this order, following GitHub's guide "Managing a custom domain for your GitHub Pages site". Each step changes GitHub or DNS, so it needs approval; follow the same order for any later change of domain.
 
-1. **Verify the domain for the organization first** (organization Settings → Pages → Add a domain, then the TXT record GitHub shows). Verification stops anyone else's Pages site from claiming the domain or its immediate subdomains.
-2. **Add the custom domain in this repository's Pages settings before creating the DNS records**, as GitHub recommends, so the records never point at GitHub without this site claiming them. A workflow deploy needs no `CNAME` file.
+1. **Verify the domain for the organization first** (organization Settings → Pages → Add a domain, then the TXT record GitHub shows). Verification stops anyone else's Pages site from claiming the domain or its immediate subdomains. Keep that TXT record.
+2. **Add the custom domain in this repository's Pages settings before creating the DNS records**, as GitHub recommends, so the records never point at GitHub without this site claiming them. Create the records straight away: from this moment `towersoftwaresystems.github.io` redirects to the domain. A workflow deploy needs no `CNAME` file, and this repository has none.
 3. **Create the DNS records** at the domain's DNS host:
    - apex `A`: `185.199.108.153`, `185.199.109.153`, `185.199.110.153`, `185.199.111.153`
    - apex `AAAA`: `2606:50c0:8000::153`, `2606:50c0:8001::153`, `2606:50c0:8002::153`, `2606:50c0:8003::153`
@@ -117,6 +117,6 @@ The site is served from `towersoftwaresystems.github.io` for now. To move it to 
 
    Do not add wildcard records, and leave the mail records alone. The apex TXT record set already holds the domain's SPF value for email. If you edit apex TXT records for any reason, keep that value, or mail from the domain stops passing SPF.
 4. **Enforce HTTPS** in the Pages settings once the certificate is issued, which can take up to 24 hours.
-5. **Move the canonical origin.** Change `canonicalOrigin` at the top of `scripts/validate.mjs` to `https://towersoftwaresystems.com`, then update until `npm run check` passes: the canonical link, `og:url`, `og:image` and `twitter:image` in `site/index.html`, the `<loc>` in `site/sitemap.xml`, and the `Sitemap:` line in `site/robots.txt`. Also update the host drawn on the sharing card (in `scripts/generate-og.ps1`, then regenerate `site/og.png`) and the hosting entries in `docs/claim-inventory.md`.
+5. **Move the canonical origin**, and merge it only once HTTPS works on the new domain, so the pages never name an address that does not answer. Change `canonicalOrigin` at the top of `scripts/validate.mjs`, then update until `npm run check` passes: the canonical link, `og:url`, `og:image` and `twitter:image` in `site/index.html`, the `<loc>` in `site/sitemap.xml`, and the `Sitemap:` line in `site/robots.txt`. Also update the host drawn on the sharing card (in `scripts/generate-og.ps1`, then regenerate `site/og.png`) and the hosting entries in `docs/claim-inventory.md`. Once it has deployed, set the website on the repository's About panel and on the organization profile to the new origin.
 
-   Then search for the old host with `git grep -nF towersoftwaresystems.github.io` and update every remaining hit (the first paragraph of this README, the "served from" line above, and the introduction of `docs/claim-inventory.md`), except the `www` CNAME target in step 3, the one-time "Going live" steps, and this step.
+   Then search for the old host with `git grep -nF` and update every remaining hit, except the `www` CNAME target in step 3 and the one-time "Going live" steps.

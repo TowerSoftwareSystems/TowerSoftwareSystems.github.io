@@ -42,6 +42,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/generate-og.ps1
 1. **check** runs on every push to `main`, every pull request, and on demand: `npm ci`, `npm audit --audit-level=high`, the Playwright Chromium install, and `npm run check`. On a push to `main` or a manual run on `main` it then uploads `site/`, and only `site/`, as the Pages artifact.
 2. **deploy** runs after a passing check, only for a push to `main` or a manual run on `main`, and publishes that artifact with `actions/deploy-pages`. Pull requests never deploy.
 
+A high-severity npm advisory fails the check and blocks deploys until the dependency is updated, usually by merging Dependabot's fix. This is deliberate: the check job runs npm-installed tools in the same job that builds the artifact it publishes.
+
 Deploying runs queue one at a time as whole runs, check and deploy together, so an older commit never deploys over a newer one. A newer pending run replaces an older pending one, and a deploy in progress is never cancelled.
 
 `.github/workflows/weekly-check.yml` ("Weekly check") runs the same checks every Monday and on demand, so a new advisory or a browser change surfaces even when nobody pushes. It never uploads or deploys. GitHub stops scheduled workflows in a public repository after 60 days without repository activity; `gh workflow enable weekly-check.yml` resumes it. Because the schedule lives in its own workflow, that never affects deploys.

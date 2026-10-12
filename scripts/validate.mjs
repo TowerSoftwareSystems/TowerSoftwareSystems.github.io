@@ -92,9 +92,7 @@ const copyRules = [
     pattern: /\b(?:guarantee[sd]?|uptime|SLA|generally available|production ready|now available|launch(?:ed|es|ing)?|24\/7|response times?|support (?:level|hours)|backups?|retention|certified|certifications?|compliant|compliance|SOC ?2|HIPAA|refunds?|money ?back|risk free|free trial|savings?|save (?:time|money)|error free|eliminates?|general availability|available (?:now|today)|now live|is live|out of early access|released|availability|warrant(?:y|ies|ed)?|promise[sd]?)\b/i,
   },
   {
-    // The Tower WMS website's commercial-claim terms, in its own order so the two sites
-    // can be compared term for term (its attorney-review terms are the next rule),
-    // plus its separate "paid pilots" and "unlimited" checks. Some terms overlap the
+    // Commercial terms that www.towerwms.com also keeps off its pages. Some overlap the
     // promise and price rules; a match then reports twice.
     name: "commercial claim",
     pattern: /\b(?:money ?back|full refunds?|refund guarantee|free trial|risk free|discount(?:ed|s)?|coupons?|promo(?:tional)? (?:code|price|pricing|rate)|introductory (?:price|pricing|rate)|launch (?:price|pricing)|early access (?:price|prices|pricing|rate)|price lock(?:ed)?|locked (?:price|rate)|cancel any ?time|month to month|uptime|SLA|response times?|24\/7|dedicated database|paid pilots?|unlimited)\b/i,
